@@ -60,8 +60,8 @@ def add_task(args):
         print("Input should include the task to be added.", file=sys.stderr)
         sys.exit(1)
     if len(args) > 1:
-        print('Task description should be sorrounded by quotes so whitespace does not truncate description. Example: "Do the laundry"', file=sys.stderr)
-        sys.exit()
+        print('Task description should be surrounded by quotes so whitespace does not truncate description. Example: "Do the laundry"', file=sys.stderr)
+        sys.exit(1)
     task_description = args[0]
     task_description = task_description.strip()
     if len(task_description) == 0:
@@ -69,9 +69,8 @@ def add_task(args):
         sys.exit(1)
     tasks = load_tasks(FILENAME)
     new_id = generate_id(tasks)
-    createdAt = get_timestamp()
-    updatedAt = createdAt
-    task_dict = {"id": new_id, "description": task_description, "status": STATUS_TODO, "createdAt": createdAt, "updatedAt": updatedAt}
+    created_at = get_timestamp()
+    task_dict = {"id": new_id, "description": task_description, "status": STATUS_TODO, "createdAt": created_at, "updatedAt": created_at}
     tasks.append(task_dict)
     save_tasks(FILENAME, tasks)
 
@@ -106,7 +105,7 @@ def main():
         list in-progress
         """
     if len(sys.argv) < 2:
-        print("Incomplete number of arguments.\n")
+        print("Incomplete number of arguments.\n", file=sys.stderr)
         print(command_info, file=sys.stderr)
         sys.exit(1)
 
@@ -126,7 +125,7 @@ def main():
     elif command == "mark-in-progress":
         mark_in_progress(args)
     else:
-        print("Unknown command.\n")
+        print("Unknown command.\n", file=sys.stderr)
         print(command_info, file=sys.stderr)
         sys.exit(1)
 
