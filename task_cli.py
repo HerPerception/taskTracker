@@ -27,7 +27,7 @@ def load_tasks(filename):
 def save_tasks(filename, tasks):
     try:
         with open(filename, 'w', encoding="utf-8") as file:
-            json.dump(tasks, file, indent=2)
+            json.dump(tasks, file, indent=2, ensure_ascii=False)
     except OSError as e:
         print(f"Error. This file may not have a write permission.: {e}", file=sys.stderr)
         sys.exit(1)
@@ -56,7 +56,27 @@ def parse_id(input_id):
         sys.exit(1)
 
 def add_task(args):
-    return "add_task called"
+    if len(args) == 0:
+        print("Input should include the task to be added.", file=sys.stderr)
+        sys.exit(1)
+    if len(args) > 1:
+        print('Task description should be sorrounded by quotes so whitespace does not truncate description. Example: "Do the laundry"', file=sys.stderr)
+        sys.exit()
+    task_description = args[0]
+    task_description = task_description.strip()
+    if len(task_description) == 0:
+        print("Input missing the task to be added.", file=sys.stderr)
+        sys.exit(1)
+    tasks = load_tasks(FILENAME)
+    new_id = generate_id(tasks)
+    createdAt = get_timestamp()
+    updatedAt = createdAt
+    task_dict = {"id": new_id, "description": task_description, "status": STATUS_TODO, "createdAt": createdAt, "updatedAt": updatedAt}
+    tasks.append(task_dict)
+    save_tasks(FILENAME, tasks)
+
+    print(f"Task added successfully (ID: {new_id})")
+
 
 def update_task(args):
     return "update_task called"

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "description": "Buy milk",
+    "status": "todo",
+    "createdAt": "2026-10-05T16:15:29.382484",
+    "updatedAt": "2026-10-05T16:15:29.382484"
+  },
+  {
+    "id": 2,
+    "description": "Walk dog",
+    "status": "todo",
+    "createdAt": "2026-10-05T16:15:34.846385",
+    "updatedAt": "2026-10-05T16:15:34.846385"
+  },
+  {
+    "id": 3,
+    "description": "café",
+    "status": "todo",
+    "createdAt": "2026-10-05T16:15:37.953098",
+    "updatedAt": "2026-10-05T16:15:37.953098"
+  }
+]
