@@ -19,11 +19,19 @@ def load_tasks(filename):
     if len(file_content.strip()) == 0 :
         return []
     try:
-        return json.loads(file_content)
+        tasks = json.loads(file_content)
     except json.JSONDecodeError as e:
         print(f"Error. File might contain invalid json.: {e}", file=sys.stderr)
         sys.exit(1)
 
+    if not isinstance(tasks, list):
+        print(f"Expected type=list for file: {FILENAME}", file=sys.stderr)
+        sys.exit(1)
+    all_dicts = all(isinstance(task, dict) for task in tasks)
+    if not all_dicts:
+        print(f"{FILENAME} should be a list of dictionaries. One or more tasks are not valid dictionaries.", file=sys.stderr)
+        sys.exit(1)
+    return tasks
 def save_tasks(filename, tasks):
     try:
         with open(filename, 'w', encoding="utf-8") as file:
