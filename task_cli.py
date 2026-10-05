@@ -1,9 +1,10 @@
-import json,  sys
+from datetime import datetime
+import json, sys
 
-filename = "tasks.json"
-statustodo = "todo"
-statusinprogress = "in-progress"
-statusdone = "done"
+FILENAME = "tasks.json"
+STATUS_TODO = "todo"
+STATUS_IN_PROGRESS = "in-progress"
+STATUS_DONE = "done"
 
 def load_tasks(filename):
     try:
@@ -30,8 +31,84 @@ def save_tasks(filename, tasks):
     except OSError as e:
         print(f"Error. This file may not have a write permission.: {e}", file=sys.stderr)
         sys.exit(1)
-        
 
+def get_timestamp():
+    return datetime.now().isoformat()
 
-print(load_tasks("tasks.json"))
+def generate_id(tasks):
+    #I used generator expression because I need to get just the id integer and want to save memory
+    highest_id = max((task['id'] for task in tasks), default=None)
+    if highest_id is None:
+        return 1
+    return highest_id + 1
 
+def find_task(tasks, task_id):
+    for task in tasks:
+        if task["id"] == task_id:
+            return task
+    return None
+
+def parse_id(input_id):
+    try:
+        return int(input_id)
+    except ValueError:
+        print(f"Input '{input_id}' is not a valid integer", file=sys.stderr)
+        sys.exit(1)
+
+def add_task(args):
+    return "add_task called"
+
+def update_task(args):
+    return "update_task called"
+
+def delete_task(args):
+    return "delete_task called"
+
+def list_tasks(args):
+    return "list_tasks called"
+
+def mark_in_progress(args):
+    return "mark_in_progress called"
+
+def mark_done(args):
+    return "mark_done called"
+
+def main():
+    command_info = """Usage: python3 task_cli.py <command> [arguments]
+        add [task to add]
+        update <taskId> [task description]
+        mark-in-progress <id>
+        mark-done <id>
+        delete <id>
+        list
+        list done
+        list todo
+        list in-progress
+        """
+    if len(sys.argv) < 2:
+        print("Incomplete number of arguments.\n")
+        print(command_info, file=sys.stderr)
+        sys.exit(1)
+
+    command = sys.argv[1]
+    args = sys.argv[2:]
+    
+    if command == "add":
+        add_task(args)
+    elif command == "update":
+        update_task(args)
+    elif command == "delete":
+        delete_task(args)
+    elif command == "list":
+        list_tasks(args)
+    elif command == "mark-done":
+        mark_done(args)
+    elif command == "mark-in-progress":
+        mark_in_progress(args)
+    else:
+        print("Unknown command.\n")
+        print(command_info, file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
