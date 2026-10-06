@@ -65,11 +65,14 @@ def find_task(tasks, task_id):
 
 def parse_id(input_id):
     try:
-        return int(input_id)
+        int_id = int(input_id)
     except ValueError:
         print(f"Input '{input_id}' is not a valid integer", file=sys.stderr)
         sys.exit(1)
-
+    if int_id <= 0:
+        print("Task id can not be negative or zero.", file=sys.stderr)
+        sys.exit(1)
+    return int_id
 
 def add_task(args):
     if len(args) == 0:
@@ -91,13 +94,14 @@ def add_task(args):
     save_tasks(FILENAME, tasks)
     print(f"Task added successfully (ID: {new_id})")
 
+
 def print_task(task):
         print(f'|ID: {task["id"]:<5}||Current Status: {task["status"]:<12}|| Task Description: {task["description"]}')
 
 
 def list_tasks(args):
     if len(args) > 1:
-        print("Wrong number of arguments for list. Usage: list <filter>", file=sys.stderr)
+        print("Wrong number of arguments for list. Usage: list [filter]", file=sys.stderr)
         sys.exit(1)
     status_filter = None
     if len(args) == 1:
@@ -118,9 +122,28 @@ def list_tasks(args):
 
 
 def update_task(args):
-    return "update_task called"
+    if len(args) != 2:
+        print("Argument for update command must be exactly 2. Usage: update <id> <description>", file=sys.stderr)
+        sys.exit(1)
+    task_id = parse_id(args[0])
+    description = args[1]
+    description = description.strip()
+    if len(description) == 0:
+        print(f"Update description for task id {task_id} can not be empty", file=sys.stderr)
+        sys.exit(1)
+    tasks = load_tasks(FILENAME)
+    task = find_task(tasks, task_id)
+    if task is None:
+        print(f"Task with id {task_id} not found.", file=sys.stderr)
+        sys.exit(1)
+    task["description"] = description
+    task["updatedAt"] = get_timestamp()
+    #We don't need to write it back to the list because we are directly modifying the dictionary in the list.
+    save_tasks(FILENAME, tasks)
+    print(f"Task updated successfully, (ID: {task_id}).")
+    print_task(task)
 
-
+    
 def delete_task(args):
     return "delete_task called"
 
