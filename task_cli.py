@@ -30,7 +30,7 @@ def load_tasks(filename):
         sys.exit(1)
     all_dicts = all(isinstance(task, dict) for task in tasks)
     if not all_dicts:
-        print(f"{FILENAME} should be a list of dictionaries. One or more tasks are not valid dictionaries.", file=sys.stderr)
+        print(f"{filename} should be a list of dictionaries. One or more tasks are not valid dictionaries.", file=sys.stderr)
         sys.exit(1)
     return tasks
 
@@ -107,12 +107,12 @@ def list_tasks(args):
     if len(args) == 1:
         status_filter = args[0]
     if status_filter is not None and status_filter not in VALID_STATUSES:
-        print(f"Status filter {status_filter}is not a valid filter  for list command. Only {VALID_STATUSES} available.", file=sys.stderr)
+        print(f"Status filter '{status_filter}' is not a valid filter  for list command. Only {VALID_STATUSES} available.", file=sys.stderr)
         sys.exit(1)
     tasks = load_tasks(FILENAME)
     task_to_show = [task for task in tasks if status_filter is None or task["status"] == status_filter]
     if not task_to_show and status_filter is not None:
-        print(f"No tasks with status {status_filter} yet. Add task now.")
+        print(f"No tasks with status '{status_filter}' yet. Add task now.")
         sys.exit()
     elif not task_to_show and status_filter is None:
         print(f"No task yet. Add task now.")
@@ -159,18 +159,14 @@ def delete_task(args):
     print(f"Task deleted successfully, (ID: {task_id})")
 
 
-def mark_in_progress(args):
+def change_task_status(args):
     return "mark_in_progress called"
-
-
-def mark_done(args):
-    return "mark_done called"
 
 
 def main():
     command_info = """Usage: python3 task_cli.py <command> [arguments]
-        add [task to add]
-        update <taskId> [task description]
+        add <task to add>
+        update <taskId> <task description>
         mark-in-progress <id>
         mark-done <id>
         delete <id>
@@ -195,10 +191,8 @@ def main():
         delete_task(args)
     elif command == "list":
         list_tasks(args)
-    elif command == "mark-done":
-        mark_done(args)
-    elif command == "mark-in-progress":
-        mark_in_progress(args)
+    elif command == "mark-done" or command == "mark-in-progress":
+        change_task_status(args)
     else:
         print("Unknown command.\n", file=sys.stderr)
         print(command_info, file=sys.stderr)
