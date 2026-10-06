@@ -145,7 +145,18 @@ def update_task(args):
 
     
 def delete_task(args):
-    return "delete_task called"
+    if len(args) != 1:
+        print("Argument for delete command must be exactly 1. Usage: delete <id>", file=sys.stderr)
+        sys.exit(1)
+    task_id = parse_id(args[0])
+    tasks = load_tasks(FILENAME)
+    task = find_task(tasks, task_id)
+    if task is None:
+        print(f"No task with ID: {task_id}", file=sys.stderr)
+        sys.exit(1)
+    tasks.remove(task)
+    save_tasks(FILENAME, tasks)
+    print(f"Task deleted successfully, (ID: {task_id})")
 
 
 def mark_in_progress(args):
