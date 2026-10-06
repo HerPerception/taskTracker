@@ -5,6 +5,7 @@ FILENAME = "tasks.json"
 STATUS_TODO = "todo"
 STATUS_IN_PROGRESS = "in-progress"
 STATUS_DONE = "done"
+VALID_STATUSES = (STATUS_TODO, STATUS_IN_PROGRESS, STATUS_DONE)
 
 def load_tasks(filename):
     try:
@@ -25,13 +26,15 @@ def load_tasks(filename):
         sys.exit(1)
 
     if not isinstance(tasks, list):
-        print(f"Expected type=list for file: {FILENAME}", file=sys.stderr)
+        print(f"Expected type=list for file: {filename}, got {type(tasks).__name__}", file=sys.stderr)
         sys.exit(1)
     all_dicts = all(isinstance(task, dict) for task in tasks)
     if not all_dicts:
         print(f"{FILENAME} should be a list of dictionaries. One or more tasks are not valid dictionaries.", file=sys.stderr)
         sys.exit(1)
     return tasks
+
+
 def save_tasks(filename, tasks):
     try:
         with open(filename, 'w', encoding="utf-8") as file:
@@ -40,8 +43,10 @@ def save_tasks(filename, tasks):
         print(f"Error. This file may not have a write permission.: {e}", file=sys.stderr)
         sys.exit(1)
 
+
 def get_timestamp():
     return datetime.now().isoformat()
+
 
 def generate_id(tasks):
     #I used generator expression because I need to get just the id integer and want to save memory
@@ -50,11 +55,13 @@ def generate_id(tasks):
         return 1
     return highest_id + 1
 
+
 def find_task(tasks, task_id):
     for task in tasks:
         if task["id"] == task_id:
             return task
     return None
+
 
 def parse_id(input_id):
     try:
@@ -62,6 +69,7 @@ def parse_id(input_id):
     except ValueError:
         print(f"Input '{input_id}' is not a valid integer", file=sys.stderr)
         sys.exit(1)
+
 
 def add_task(args):
     if len(args) == 0:
@@ -81,24 +89,49 @@ def add_task(args):
     task_dict = {"id": new_id, "description": task_description, "status": STATUS_TODO, "createdAt": created_at, "updatedAt": created_at}
     tasks.append(task_dict)
     save_tasks(FILENAME, tasks)
-
     print(f"Task added successfully (ID: {new_id})")
+
+def print_task(task):
+        print(f'|ID: {task["id"]:<5}||Current Status: {task["status"]:<12}|| Task Description: {task["description"]}')
+
+
+def list_tasks(args):
+    if len(args) > 1:
+        print("Wrong number of arguments for list. Usage: list <filter>", file=sys.stderr)
+        sys.exit(1)
+    status_filter = None
+    if len(args) == 1:
+        status_filter = args[0]
+    if status_filter is not None and status_filter not in VALID_STATUSES:
+        print(f"Status filter {status_filter}is not a valid filter  for list command. Only {VALID_STATUSES} available.", file=sys.stderr)
+        sys.exit(1)
+    tasks = load_tasks(FILENAME)
+    task_to_show = [task for task in tasks if status_filter is None or task["status"] == status_filter]
+    if not task_to_show and status_filter is not None:
+        print(f"No tasks with status {status_filter} yet. Add task now.")
+        sys.exit()
+    elif not task_to_show and status_filter is None:
+        print(f"No task yet. Add task now.")
+        sys.exit()
+    for each_task in task_to_show:
+        print_task(each_task)
 
 
 def update_task(args):
     return "update_task called"
 
+
 def delete_task(args):
     return "delete_task called"
 
-def list_tasks(args):
-    return "list_tasks called"
 
 def mark_in_progress(args):
     return "mark_in_progress called"
 
+
 def mark_done(args):
     return "mark_done called"
+
 
 def main():
     command_info = """Usage: python3 task_cli.py <command> [arguments]
@@ -136,6 +169,7 @@ def main():
         print("Unknown command.\n", file=sys.stderr)
         print(command_info, file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
