@@ -55,12 +55,14 @@ def generate_id(tasks):
         return 1
     return highest_id + 1
 
-
+#Safely prints an error message and exits if task with provided ID is not found to avoid repeating checks in the other functions.
 def find_task(tasks, task_id):
     for task in tasks:
         if task["id"] == task_id:
             return task
-    return None
+        
+    print(f"Task with id {task_id} not found.", file=sys.stderr)
+    sys.exit(1)
 
 
 def parse_id(input_id):
@@ -96,7 +98,7 @@ def add_task(args):
 
 
 def print_task(task):
-        print(f'|ID: {task["id"]:<5}||Current Status: {task["status"]:<12}|| Task Description: {task["description"]}')
+    print(f'|ID: {task["id"]:<5}||Current Status: {task["status"]:<12}|| Task Description: {task["description"]}')
 
 
 def list_tasks(args):
@@ -107,16 +109,16 @@ def list_tasks(args):
     if len(args) == 1:
         status_filter = args[0]
     if status_filter is not None and status_filter not in VALID_STATUSES:
-        print(f"Status filter '{status_filter}' is not a valid filter  for list command. Only {VALID_STATUSES} available.", file=sys.stderr)
+        print(f"Status filter '{status_filter}' is not a valid filter for list command. Only {VALID_STATUSES} available.", file=sys.stderr)
         sys.exit(1)
     tasks = load_tasks(FILENAME)
     task_to_show = [task for task in tasks if status_filter is None or task["status"] == status_filter]
     if not task_to_show and status_filter is not None:
-        print(f"No tasks with status '{status_filter}' yet. Add task now.")
-        sys.exit()
+        print(f"No tasks with status '{status_filter}' yet.")
+        return
     elif not task_to_show and status_filter is None:
-        print(f"No task yet. Add task now.")
-        sys.exit()
+        print("No task yet. Add task now.")
+        return
     for each_task in task_to_show:
         print_task(each_task)
 
@@ -133,9 +135,6 @@ def update_task(args):
         sys.exit(1)
     tasks = load_tasks(FILENAME)
     task = find_task(tasks, task_id)
-    if task is None:
-        print(f"Task with id {task_id} not found.", file=sys.stderr)
-        sys.exit(1)
     task["description"] = description
     task["updatedAt"] = get_timestamp()
     #We don't need to write it back to the list because we are directly modifying the dictionary in the list.
@@ -151,16 +150,30 @@ def delete_task(args):
     task_id = parse_id(args[0])
     tasks = load_tasks(FILENAME)
     task = find_task(tasks, task_id)
-    if task is None:
-        print(f"No task with ID: {task_id}", file=sys.stderr)
-        sys.exit(1)
     tasks.remove(task)
     save_tasks(FILENAME, tasks)
     print(f"Task deleted successfully, (ID: {task_id})")
 
 
-def change_task_status(args):
-    return "mark_in_progress called"
+def change_task_status(arg, command):
+    if len(arg) != 1:
+        print("Change of task status command must include only the id. Usage: mark-done <id> or mark-in-progress <id>", file=sys.stderr)
+        sys.exit(1)
+    task_id = parse_id(arg[0])
+    if command == "mark-in-progress":
+        new_status = STATUS_IN_PROGRESS
+    elif command == "mark-done":
+        new_status = STATUS_DONE
+    tasks = load_tasks(FILENAME)
+    task = find_task(tasks, task_id)
+    if new_status == task["status"]:
+        print(f"Task (ID: {task_id}) status already {new_status}")
+        return
+    task["status"] = new_status
+    task["updatedAt"] = get_timestamp()
+    save_tasks(FILENAME, tasks)
+    print(f"Task marked as {new_status} (ID: {task_id})")
+    
 
 
 def main():
@@ -192,7 +205,7 @@ def main():
     elif command == "list":
         list_tasks(args)
     elif command == "mark-done" or command == "mark-in-progress":
-        change_task_status(args)
+        change_task_status(args, command)
     else:
         print("Unknown command.\n", file=sys.stderr)
         print(command_info, file=sys.stderr)

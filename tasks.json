@@ -1,10 +1,10 @@
 [
   {
     "id": 1,
-    "description": "café",
-    "status": "todo",
+    "description": "Take a walk",
+    "status": "in-progress",
     "createdAt": "2026-10-05T16:15:29.382484",
-    "updatedAt": "2026-10-06T10:01:07.125026"
+    "updatedAt": "2026-10-06T12:34:43.929657"
   },
   {
     "id": 3,
