@@ -1,6 +1,6 @@
 import helper, sys
 def main():
-    command_info = """Usage: python3 task_cli.py <command> [arguments]
+    command_info = """Usage: task-cli <command> [arguments]
         add <task to add>
         update <taskId> <task description>
         mark-in-progress <id>
